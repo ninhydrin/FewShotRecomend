@@ -40,7 +40,7 @@ elif [ $1 == "pre" ]; then
 	    echo "start pre training"
 	    python compute_mean.py 0
 	    python train_law.py -t pre -g $gpu
-	    #python train_spec.py -t pre -g $gpu
+	    python train_spec.py -t pre -g $gpu
 	    python train_mmc.py -t pre -f mel -g $gpu
 	    python train_mmc.py -t pre -f mfcc -g $gpu
 	    python train_mmc.py -t pre -f chroma -g $gpu

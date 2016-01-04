@@ -82,6 +82,7 @@ def get_chroma(y,sr,cqt=True,harmonic=False):#クロマベクトル
 def get_mel(y,sr):#メルスペクトログラム
     return librosa.feature.melspectrogram(y=y, sr=sr)
 """    
+"""
 def get_pre_train():#事前学習用学習セットの作成
     positive_train=os.listdir(pre_train_dir)
     count=0
@@ -112,8 +113,6 @@ def get_tempo(y,sr,only_tempo=1):
         return librosa.beat.beat_track(y=y, sr=sr)[0]        
     else:
         return librosa.beat.beat_track(y=y, sr=sr)
-
-    
 
 def make_vec_botsu(path,c_num,t_dir):#特徴の確率分布を抽出(KL-ダイバージェンス用)
     print "convert ",path
@@ -147,7 +146,7 @@ def pre_vec(path):#事前学習用の特徴抽出
     chroma = get_chroma(y[::4],sr).mean(1)
     print "done ",path
     return mel,mfcc,chroma
-"""
+
 
 def divide_ham_per(y):
     return librosa.effects.hpss(y)

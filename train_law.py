@@ -56,23 +56,24 @@ window_num=model.insize
 
 if is_pre:
     pre_dir = "pre_train/preTrain"
-    counter = -1    
+    counter = 0
     val_data=[]
     train_data=[]
     val_list=[]
-    for c,i in enumerate(os.listdir(pre_dir)):
-        if not c % 100:
+    data_dir = [i for i in os.listdir(pre_dir) if i[0] !="." and "wav" in i]
+    assert len(data_dir)==1000
+    for c,i in enumerate(data_dir):
+        if c % 100 == 1 or c%100 == 2:
+            y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
+            five_p = y.shape[1]/20
+            val_data.append((counter,y.mean(0)[five_p::10]))
+        else:
+            y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
+            five_p = y.shape[1]/20
+            train_data.append((counter,y.mean(0)[five_p::10]))
+        if c % 100 == 99:
             counter+=1
-        if ".wav" in i:
-            if c % 100 == 1 or c%100 == 2:
-                y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
-                five_p = y.shape[1]/20
-                val_data.append((counter,y.mean(0)[five_p::10]))
-            else:
-                y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
-                five_p = y.shape[1]/20
-                train_data.append((counter,y.mean(0)[five_p::10]))
-            
+
     for cate,i in train_data:
         for j in range(i.size/window_num):
             train_list.append((cate,i[j*window_num:(j+1)*window_num]))
@@ -83,7 +84,6 @@ if is_pre:
     N_test = len(val_list)
 
 else:
-
     dataset=[]
     for i in os.listdir("positive"):
         if ".wav" in i:            
