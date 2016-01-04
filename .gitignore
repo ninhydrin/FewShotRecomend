@@ -1,0 +1,10 @@
+*.wav
+*.wave
+.DS_Store
+*.JPEG
+*.png
+*.au
+*.pyc
+*.dic
+*.npy
+*.txt
