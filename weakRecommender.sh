@@ -8,12 +8,12 @@ if [ $1 == "train" ] ; then
     echo "start train your favorite music"
     echo "tranfer params"
     python transfer.py construct
-    python transfer.py -m law
-    python transfer.py -m spec
-    python transfer.py -m mel
-    python transfer.py -m mfcc
-    python transfer.py -m chroma
-    #python trainMaker.py
+    python transfer.py law
+    python transfer.py spec
+    python transfer.py mel
+    python transfer.py mfcc
+    python transfer.py chroma
+    python trainMaker.py
     python compute_mean.py 1
     python train_law.py -t main -g $gpu
     python train_spec.py -t main -g $gpu
@@ -44,7 +44,7 @@ elif [ $1 == "pre" ]; then
 	    python train_mmc.py -t pre -f mel -g $gpu
 	    python train_mmc.py -t pre -f mfcc -g $gpu
 	    python train_mmc.py -t pre -f chroma -g $gpu
-
+	    python transfer.py divide
 	    echo "pre train complete!!";;
 	 *) echo "stop pre training";;
      esac
