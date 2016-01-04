@@ -2,11 +2,10 @@ import os
 import sys
 import librosa
 import tools
-from sklearn.cluster import KMeans
+#from sklearn.cluster import KMeans
 import pickle
 import numpy as np
-
-import multiprocessing
+#import multiprocessing
 
 posi_dir="positive"
 nega_dir="negative"
