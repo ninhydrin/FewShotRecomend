@@ -9,6 +9,7 @@
 - Librosa
 - Skimage
 - Pylab
+- (scikit.samplerate)
 - Chainer (1.5.1): https://github.com/pfnet/chainer
 
  Anaconda-2.3.0 の使用を推奨

@@ -6,9 +6,15 @@ if [ $1 == "train" ] ; then
 	gpu=$2
     fi	
     echo "start train your favorite music"
-    python trainMaker.py
-    python compute_mean.py 1
+    echo "tranfer params"
     python transfer.py construct
+    python transfer.py -m law
+    python transfer.py -m spec
+    python transfer.py -m mel
+    python transfer.py -m mfcc
+    python transfer.py -m chroma
+    #python trainMaker.py
+    python compute_mean.py 1
     python train_law.py -t main -g $gpu
     python train_spec.py -t main -g $gpu
     python train_mmc.py -t main -f mel -g $gpu
@@ -32,19 +38,13 @@ elif [ $1 == "pre" ]; then
 		gpu=$2
 	    fi	
 	    echo "start pre training"
+	    python compute_mean.py 0
 	    python train_law.py -t pre -g $gpu
 	    #python train_spec.py -t pre -g $gpu
 	    python train_mmc.py -t pre -f mel -g $gpu
 	    python train_mmc.py -t pre -f mfcc -g $gpu
 	    python train_mmc.py -t pre -f chroma -g $gpu
-	    echo "compute spectrogram mean"
-	    python compute_mean.py 0
-	    echo "tranfer params"
-	    python transfer.py -m law
-	    python transfer.py -m spec
-	    python transfer.py -m mel
-	    python transfer.py -m mfcc
-	    python transfer.py -m chroma
+
 	    echo "pre train complete!!";;
 	 *) echo "stop pre training";;
      esac

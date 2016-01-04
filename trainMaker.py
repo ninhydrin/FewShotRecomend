@@ -26,7 +26,7 @@ def p_dump(a,b):
 
 def make_train():
     #posi_tempo=[]
-    print "start positive"
+    print "start positive music feature extract"
     posi_mel=[]
     posi_chroma=[]
     posi_mfcc=[]
@@ -34,6 +34,7 @@ def make_train():
     #nega_tempo=[]
     for i in positive_sample:
         #tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
+        print i
         mel,mfcc,chroma = tools.get_feature(os.path.join(posi_dir,i))
         posi_mel.append(mel)
         posi_mfcc.append(mfcc)
@@ -48,7 +49,7 @@ def make_train():
     del posi_mfcc
     del posi_chroma
     
-    print "start negative"
+    print "start negative music feature extract"
     nega_mel=[]
     nega_chroma=[]
     nega_mfcc=[]
