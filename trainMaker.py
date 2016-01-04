@@ -33,8 +33,11 @@ def make_train():
     #posi_tempo=[]
     #nega_tempo=[]
     for i in positive_sample:
-        tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
-        tools.get_feature(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
+        #tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
+        mel,mfcc,chroma = tools.get_feature(os.path.join(posi_dir,i))
+        posi_mel.append(mel)
+        posi_mfcc.append(mfcc)
+        posi_chroma.append(chroma)
         tools.make_spec(os.path.join(posi_dir,i),os.path.join(data_dir,"posi_spectro",i[:-3]+"png"))
 
     p_dump(posi_mel,"posi_mel")
@@ -51,8 +54,11 @@ def make_train():
     nega_mfcc=[]
 
     for i in negative_sample:
-        tools.make_vec(os.path.join(nega_dir,i),0,(nega_mel,nega_mfcc,nega_chroma))
-        tools.get_feature(os.path.join(nega_dir,i),1,(nega_mel,nega_mfcc,nega_chroma))
+        #tools.make_vec(os.path.join(nega_dir,i),0,(nega_mel,nega_mfcc,nega_chroma))
+        mel,mfcc,chroma=tools.get_feature(os.path.join(nega_dir,i))
+        nega_mel.append(mel)
+        nega_mfcc.append(mfcc)
+        nega_chroma.append(chroma)
         tools.make_spec(os.path.join(nega_dir,i),os.path.join(data_dir,"nega_spectro",i[:-3]+"png"))
     p_dump(nega_mel,"nega_mel")
     p_dump(nega_mfcc,"nega_mfcc")
