@@ -69,8 +69,8 @@ class Mfcc(chainer.Chain):
             #conv3=F.Convolution2D(12,8,ksize=3),
             #conv4=F.Convolution2D(8,8,ksize=3),
             fc1=L.Linear(120, 512),            #fc2=L.Linear(512, 1024),
-            #fc2=L.Linear(120*98, 1024),
-            fc3=L.Linear(512, 1024),
+            fc2=L.Linear(512, 1024),
+            fc3=L.Linear(1024, 1024),
             fc4=L.Linear(1024, 512),
             fc5=L.Linear(512, 512),
             fc_last=L.Linear(512, category_num)
