@@ -110,34 +110,42 @@ def main(m_list):
     serializers.load_hdf5(os.path.join(model_dir,"my_spec.model"), spec_model)
 
     candidate = []    
-    for i in m_list:
+    for num,i in enumerate(m_list):
         p_n=[]
-        print  "begin",i
+        print  "begin",i,"({0}/{1})".format(num+1,len(m_list))
         mel,mfcc,chroma = tools.get_feature(i)
-        tools.fprint("feature extract done")
         p_n.append(predict_mmc(mel_model,mel).mean(0))
-        tools.fprint("mel done            ")
+        tools.fprint("mel done   ")
         p_n.append(predict_mmc(mfcc_model,mfcc).mean(0))
-        tools.fprint("mfcc done           ")
+        tools.fprint("mfcc done  ")
         p_n.append(predict_mmc(chroma_model,chroma).mean(0))
-        tools.fprint("chroma done         ")
+        tools.fprint("chroma done")
         p_n.append(predict_law(law_model,i).mean(0))
-        tools.fprint("law done            ")        
+        tools.fprint("law done   ")        
         p_n.append(predict_spec(spec_model,i))
-        tools.fprint("spec done           ")
+        tools.fprint("spec done  ")
         candidate.append((i,p_n))
-        print "\nend",i
+        tools.fprint("end        \n")
     return candidate
 
 if __name__ == "__main__":
     m_list = dir_sort(args.target)
     candidate=main(m_list)
     os.remove(os.path.join(result_dir,"temp.png"))
-
+    threshold=pickle.load(open("train_data/threshold.dic"))
+    th_list=[threshold["mel"],threshold["mfcc"],threshold["chroma"],threshold["law"],threshold["spec"]]
+    th_list=[sum(i)/2 for i in th_list]
     result_txt = open(os.path.join(result_dir,"result.txt"),"w")        
     for i in candidate:
         result_txt.write(i[0]+"\n")
-        for j in i[1]:
-            result_txt.write("{0:.6f} {1:.6f}\n".format(j[0],j[1]))
-        result_txt.write("\n")
+        count=0.
+        for th,j in zip(th_list,i[1]):
+            count += j[0]-th
+            result_txt.write("{0:.6f}\n".format(j[0]))
+        comment = "Neither"
+        if count > 0.5:
+            comment = "Like"
+        elif count < 0:
+            comment = "Hate"
+        result_txt.write(comment+"\n\n")
     result_txt.close()

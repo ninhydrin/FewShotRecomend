@@ -82,7 +82,7 @@ def get_chroma(y,sr,cqt=True,harmonic=False):#クロマベクトル
 def get_mel(y,sr):#メルスペクトログラム
     return librosa.feature.melspectrogram(y=y, sr=sr)
 """    
-"""
+
 def get_pre_train():#事前学習用学習セットの作成
     positive_train=os.listdir(pre_train_dir)
     count=0
@@ -147,7 +147,7 @@ def pre_vec(path):#事前学習用の特徴抽出
     print "done ",path
     return mel,mfcc,chroma
 
-
+"""
 def divide_ham_per(y):
     return librosa.effects.hpss(y)
 

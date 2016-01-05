@@ -15,7 +15,7 @@
  Anaconda-2.3.0 の使用を推奨
 
 ## How to use
-positiveにお気に入りの音楽を、negativeに嫌い（というか趣向に合わない）音楽を入れる（.wavにのみ対応）。
+positiveにお気に入りの音楽を、negativeに嫌い（というか趣向に合わない）音楽を入れる（.wavにのみ対応。100曲未満ずつが理想）。
 その後FewShotRecommendディレクトリ内で
 
 ./weakRecommender.sh train
@@ -26,5 +26,6 @@ positiveにお気に入りの音楽を、negativeに嫌い（というか趣向�
 ./weakRecommender.sh predict path/to/music_dir
 
 resultディレクトリに結果が保存される。
-
-
+あくまでも予測値です
+## Other
+gpuの使用を推奨

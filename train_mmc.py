@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(description='train favorite music')
 
 parser.add_argument('--feature', '-f',default="chroma",choices=('mel','mfcc',"chroma"),
                     help='feature type (mel or mfcc or chroma)')
-parser.add_argument('--train_type', '-t',default="pre",choices=('pre','main'),
+parser.add_argument('--train_type', '-t',default="main",choices=('pre','main'),
                     help='train type(pre_train or main_train)')
 parser.add_argument('--epoch', '-e', default='40',type=int,
                     help='epoch num')
@@ -147,7 +147,7 @@ for epoch in six.moves.range(1, args.epoch + 1):
                     if label == 0:
                         posi_pre = np.append(posi_pre,prob[0])
                     else:
-                        nega_pre = np.append(nega_pre,prob[1])
+                        nega_pre = np.append(nega_pre,prob[0])
 
 
             sum_loss += float(loss.data) * len(t.data)

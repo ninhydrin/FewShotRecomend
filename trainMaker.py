@@ -12,8 +12,8 @@ nega_dir="negative"
 
 data_dir="train_data"
 
-positive_sample = [i for i in os.listdir(posi_dir) if ".wav" in i]
-negative_sample = [i for i in os.listdir(nega_dir) if ".wav" in i]
+positive_sample = [i for i in os.listdir(posi_dir) if ".wav" in i and i[0]!="."]
+negative_sample = [i for i in os.listdir(nega_dir) if ".wav" in i and i[0]!="."]
 
 def p_dump(a,b):
         pickle.dump(a,open(os.path.join(data_dir,b),"w"),-1)
@@ -36,9 +36,14 @@ def make_train():
         #tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
         print i
         mel,mfcc,chroma = tools.get_feature(os.path.join(posi_dir,i))
-        posi_mel.append(mel)
-        posi_mfcc.append(mfcc)
-        posi_chroma.append(chroma)
+
+        mel=[(0,j) for j in mel]
+        mfcc=[(0,j) for j in mfcc]
+        chroma=[(0,j) for j in chroma]
+
+        posi_mel+=mel
+        posi_mfcc+=mfcc
+        posi_chroma+=chroma
         tools.make_spec(os.path.join(posi_dir,i),os.path.join(data_dir,"posi_spectro",i[:-3]+"png"))
 
     p_dump(posi_mel,"posi_mel")
@@ -56,10 +61,16 @@ def make_train():
 
     for i in negative_sample:
         #tools.make_vec(os.path.join(nega_dir,i),0,(nega_mel,nega_mfcc,nega_chroma))
+        print i
         mel,mfcc,chroma=tools.get_feature(os.path.join(nega_dir,i))
-        nega_mel.append(mel)
-        nega_mfcc.append(mfcc)
-        nega_chroma.append(chroma)
+
+        mel=[(1,j) for j in mel]
+        mfcc=[(1,j) for j in mfcc]
+        chroma=[(1,j) for j in chroma]
+
+        nega_mel+=mel
+        nega_mfcc+=mfcc
+        nega_chroma+=chroma
         tools.make_spec(os.path.join(nega_dir,i),os.path.join(data_dir,"nega_spectro",i[:-3]+"png"))
     p_dump(nega_mel,"nega_mel")
     p_dump(nega_mfcc,"nega_mfcc")

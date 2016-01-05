@@ -8,11 +8,6 @@ if [ $1 == "train" ] ; then
     echo "start train your favorite music"
     echo "tranfer params"
     python transfer.py construct
-    python transfer.py law
-    python transfer.py spec
-    python transfer.py mel
-    python transfer.py mfcc
-    python transfer.py chroma
     python trainMaker.py
     python compute_mean.py 1
     python train_law.py -t main -g $gpu
@@ -22,11 +17,15 @@ if [ $1 == "train" ] ; then
     python train_mmc.py -t main -f chroma -g $gpu
     echo "end train"
 elif [ $1 == "predict" ] ; then
-    if [ $# < 2 ] ; then
+    gpu=-1
+    if [ $#<2 ] ; then
 	echo "usage : ./tools.sh predict path/to/music_directory (save_text 0 or 1)"
     else
+	if [ $# == 3 ] ; then
+	    gpu=$2
+	fi	
 	echo "start predict   target:"$2
-	python predictor.py $2 -o $3
+	python predictor.py $2 -g $gpu
     fi
 elif [ $1 == "pre" ]; then
     echo "this is pre train mode.you don't need to use. but execute ?[Y/n]"
@@ -44,7 +43,13 @@ elif [ $1 == "pre" ]; then
 	    python train_mmc.py -t pre -f mel -g $gpu
 	    python train_mmc.py -t pre -f mfcc -g $gpu
 	    python train_mmc.py -t pre -f chroma -g $gpu
-	    python transfer.py divide
+	    
+	    python transfer.py law
+	    python transfer.py spec
+	    python transfer.py mel
+	    python transfer.py mfcc
+	    python transfer.py chroma
+	    python transfer.py divide	    
 	    echo "pre train complete!!";;
 	 *) echo "stop pre training";;
      esac

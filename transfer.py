@@ -26,60 +26,62 @@ elif model_name == "law":
     src_model = models.Law(pre=True)
     dst_model = models.Law()
 
-if model_name == "construct" and not os.path.exists("pre_train/pre_spec.model"):
+if model_name == "construct":
+    if os.path.exists("train_data/my_spec.model"):
+        exit()
     print 'Construct Spectro model'
     src_conv = models.DivideConv()
     dst_model = models.Spectro(pre=True)
-    serializers.load_hdf5("pre_train/divide_conv.param", src_conv)
+    serializers.load_hdf5("train_data/divide_conv.param", src_conv)
     dst_dict = {i[0]:i[1] for i in dst_model.namedparams()}
     for i in src_conv.namedparams():
         dst_dict[i[0]].data = i[1].data
-    dst_model.fc6.W.data[:2048] = pickle.load(open("pre_train/fc6_W_one.param"))
-    dst_model.fc6.W.data[2048:] = pickle.load(open("pre_train/fc6_W_two.param"))
-    dst_model.fc6.b.data=pickle.load(open("pre_train/fc6_b.param"))
-    dst_model.fc7.W.data=pickle.load(open("pre_train/fc7_W.param"))
-    dst_model.fc7.b.data=pickle.load(open("pre_train/fc7_b.param"))
-    dst_model.fc_last.W.data=pickle.load(open("pre_train/fc_last_W.param"))
-    dst_model.fc_last.b.data=pickle.load(open("pre_train/fc_last_b.param"))
-    serializers.save_hdf5('pre_train/pre_spec.model',dst_model)
-    os.remove("pre_train/fc6_W_one.param")
-    os.remove("pre_train/fc6_W_two.param")
-    os.remove("pre_train/fc6_b.param")
-    os.remove("pre_train/fc7_W.param")
-    os.remove("pre_train/fc7_b.param")
-    os.remove("pre_train/fc_last_W.param")
-    os.remove("pre_train/fc_last_b.param")
-    os.remove("pre_train/divide_conv.param")
+    dst_model.fc6.W.data[:2048] = pickle.load(open("train_data/fc6_W_one.param"))
+    dst_model.fc6.W.data[2048:] = pickle.load(open("train_data/fc6_W_two.param"))
+    dst_model.fc6.b.data=pickle.load(open("train_data/fc6_b.param"))
+    dst_model.fc7.W.data=pickle.load(open("train_data/fc7_W.param"))
+    dst_model.fc7.b.data=pickle.load(open("train_data/fc7_b.param"))
+    dst_model.fc_last.W.data=pickle.load(open("train_data/fc_last_W.param"))
+    dst_model.fc_last.b.data=pickle.load(open("train_data/fc_last_b.param"))
+    serializers.save_hdf5('train_data/my_spec.model',dst_model)
+    os.remove("train_data/fc6_W_one.param")
+    os.remove("train_data/fc6_W_two.param")
+    os.remove("train_data/fc6_b.param")
+    os.remove("train_data/fc7_W.param")
+    os.remove("train_data/fc7_b.param")
+    os.remove("train_data/fc_last_W.param")
+    os.remove("train_data/fc_last_b.param")
+    os.remove("train_data/divide_conv.param")
     print 'Construct complete!!'
 
 elif model_name == "divide":
     print 'Divide Spectro model for git'
-    src_model = models.Spectro(pre=True)
+    src_model = models.Spectro()
     dst_conv = models.DivideConv()
-    serializers.load_hdf5("pre_train/pre_spec.model", src_model)
+    serializers.load_hdf5("train_data/my_spec.model", src_model)
     conv_dict = {i[0]:i[1] for i in dst_conv.namedparams()}
     for i in src_model.namedparams():
         if conv_dict.has_key(i[0]):
             conv_dict[i[0]].data = i[1].data
-    serializers.save_hdf5('pre_train/divide_conv.param',dst_conv)
-    pickle.dump(src_model.fc6.W.data[:2048],open("pre_train/fc6_W_one.param","w"),-1)
-    pickle.dump(src_model.fc6.W.data[2048:],open("pre_train/fc6_W_two.param","w"),-1)
-    pickle.dump(src_model.fc6.b.data,open("pre_train/fc6_b.param","w"),-1)
-    pickle.dump(src_model.fc7.W.data,open("pre_train/fc7_W.param","w"),-1)
-    pickle.dump(src_model.fc7.b.data,open("pre_train/fc7_b.param","w"),-1)
-    pickle.dump(src_model.fc_last.W.data,open("pre_train/fc_last_W.param","w"),-1)
-    pickle.dump(src_model.fc_last.b.data,open("pre_train/fc_last_b.param","w"),-1)
-    os.remove('pre_train/pre_spec.model')
+    serializers.save_hdf5('train_data/divide_conv.param',dst_conv)
+    pickle.dump(src_model.fc6.W.data[:2048],open("train_data/fc6_W_one.param","w"),-1)
+    pickle.dump(src_model.fc6.W.data[2048:],open("train_data/fc6_W_two.param","w"),-1)
+    pickle.dump(src_model.fc6.b.data,open("train_data/fc6_b.param","w"),-1)
+    pickle.dump(src_model.fc7.W.data,open("train_data/fc7_W.param","w"),-1)
+    pickle.dump(src_model.fc7.b.data,open("train_data/fc7_b.param","w"),-1)
+    pickle.dump(src_model.fc_last.W.data,open("train_data/fc_last_W.param","w"),-1)
+    pickle.dump(src_model.fc_last.b.data,open("train_data/fc_last_b.param","w"),-1)
+    os.remove('train_data/my_spec.model')
     print 'Divide complete!!'
 else:
     print 'Load model from', args.model+".model"
-    serializers.load_hdf5("pre_train/pre_"+model_name+".model", src_model)
+    serializers.load_hdf5("pre_train/pre_"+model_name+".model",src_model)
     src_dict = {i[0]:i[1] for i in src_model.namedparams()}
     for i in dst_model.namedparams():
         if "fc_last" in i[0]:
             continue
         i[1].data=src_dict[i[0]].data
     print 'save ',"train_data/my_"+model_name+".model"
-    serializers.save_hdf5("train_data/my_"+model_name+'.model',trans_model)
+    serializers.save_hdf5("train_data/my_"+model_name+'.model',dst_model)
 
 
