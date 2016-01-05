@@ -1,14 +1,22 @@
 #! /bin/bash
+function return_value {
+    RET=$?
+    if [ ${RET} -eq 1 ]; then
+	echo "Stop All"
+	exit 1
+    fi
+}
 
-if [ $1 == "train" ] ; then
+if [ $1 = "train" ] ; then
     gpu=-1
-    if [ $# == 2 ]; then
+    if [ $# -eq 2 ]; then
 	gpu=$2
     fi	
     echo "start train your favorite music"
     echo "tranfer params"
     python transfer.py construct
     python trainMaker.py
+    return_value
     python compute_mean.py 1
     python train_law.py -t main -g $gpu
     python train_spec.py -t main -g $gpu
@@ -16,24 +24,24 @@ if [ $1 == "train" ] ; then
     python train_mmc.py -t main -f mfcc -g $gpu
     python train_mmc.py -t main -f chroma -g $gpu
     echo "end train"
-elif [ $1 == "predict" ] ; then
+elif [ $1 = "predict" ] ; then
     gpu=-1
-    if [ $#<2 ] ; then
+    if [ $# -lt 2 ] ; then
 	echo "usage : ./tools.sh predict path/to/music_directory (save_text 0 or 1)"
     else
-	if [ $# == 3 ] ; then
+	if [ $# -eq 3 ] ; then
 	    gpu=$2
 	fi	
 	echo "start predict   target:"$2
 	python predictor.py $2 -g $gpu
     fi
-elif [ $1 == "pre" ]; then
+elif [ $1 = "pre" ]; then
     echo "this is pre train mode.you don't need to use. but execute ?[Y/n]"
     read ans
     case `echo $ans |tr y Y` in 
 	Y* )
 	    gpu=-1
-	    if [ $# == 2 ]; then
+	    if [ $# -eq 2 ]; then
 		gpu=$2
 	    fi	
 	    echo "start pre training"

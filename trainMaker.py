@@ -15,6 +15,13 @@ data_dir="train_data"
 positive_sample = [i for i in os.listdir(posi_dir) if ".wav" in i and i[0]!="."]
 negative_sample = [i for i in os.listdir(nega_dir) if ".wav" in i and i[0]!="."]
 
+if not positive_sample or not negative_sample:
+    print "you need put samples on 'negative' and 'positive'"
+    exit(1)
+def p_dump(a,b):
+        pickle.dump(a,open(os.path.join(data_dir,b),"w"),-1)
+
+
 def p_dump(a,b):
         pickle.dump(a,open(os.path.join(data_dir,b),"w"),-1)
         
