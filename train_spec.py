@@ -167,8 +167,9 @@ for epoch in six.moves.range(1, args.epoch + 1):
 
         print 'test  mean loss={}, accuracy={}'.format(
             sum_loss / N_test, sum_accuracy / N_test)
-    print 'save the model'
-    serializers.save_hdf5(save_name, model)
+    if epoch % 10 == 0:
+        print 'save the model'
+        serializers.save_hdf5(save_name, model)
     if args.learning == "sgd":
         optimizer.lr *= 0.97
     model.train = True

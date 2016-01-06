@@ -13,8 +13,8 @@ if [ $1 = "train" ] ; then
 	gpu=$2
     fi	
     echo "start train your favorite music"
-    echo "tranfer params"
-    python transfer.py construct
+    #echo "tranfer params"
+    #python transfer.py construct
     python trainMaker.py
     return_value
     python compute_mean.py 1
@@ -57,7 +57,7 @@ elif [ $1 = "pre" ]; then
 	    python transfer.py mel
 	    python transfer.py mfcc
 	    python transfer.py chroma
-	    python transfer.py divide	    
+	    #python transfer.py divide	    
 	    echo "pre train complete!!";;
 	 *) echo "stop pre training";;
      esac
