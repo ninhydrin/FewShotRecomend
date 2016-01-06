@@ -143,7 +143,7 @@ if __name__ == "__main__":
             count += j[0]-th
             result_txt.write("{0:.6f}\n".format(j[0]))
         comment = "Neither"
-        if count > 0.5:
+        if count > 0.25:
             comment = "Like"
         elif count < 0:
             comment = "Hate"
