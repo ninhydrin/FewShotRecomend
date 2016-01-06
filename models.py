@@ -8,16 +8,16 @@ class Chroma(chainer.Chain):
     def __init__(self,pre=False):
         category_num = 10 if pre else 2
         super(Chroma, self).__init__(
-            fc1=L.Linear(12, 128),
+            fc1=L.Linear(12, 256),
             #fc2=L.Linear(256, 128),
-            fc3=L.Linear(128, 128),
+            fc3=L.Linear(256, 128),
             fc_last=L.Linear(128, category_num)
         )
         self.train = True
 
     def __call__(self, x, t):
-        h = F.leaky_relu(self.fc1(x),slope=0.3)
-        #h = F.dropout(F.relu(self.fc1(h)), train=self.train,ratio = .7)  
+        h = F.dropout(F.leaky_relu(self.fc1(x),slope=0.03),train=self.train)
+        #h = F.dropout(F.sigmoid(self.fc1(x)), train=self.train,ratio = .7)  
         #h = F.dropout(F.relu(self.fc2(h)), train=self.train,ratio = .7)  
         h = F.dropout(F.relu(self.fc3(h)), train=self.train,ratio = .7)  
         h = self.fc_last(h)
@@ -36,6 +36,7 @@ class Mel(chainer.Chain):
             #conv3=F.Convolution2D(10,6,ksize=3),
             #conv4=F.Convolution2D(6,6,ksize=3),
             fc1=L.Linear(128,1024),
+            #fc2=L.Linear(1024, 1024),
             fc3=L.Linear(1024, 1024),
             fc4=L.Linear(1024, 512),
             fc_last=L.Linear(512, category_num),
@@ -47,10 +48,16 @@ class Mel(chainer.Chain):
         #h = F.relu(self.conv2(h))
         #h = F.relu(self.conv3(h))
         #h = F.relu(self.conv4(h))
-        h = F.dropout(F.leaky_relu(self.fc1(x),slope=0.1), train=self.train)        
+        #h = F.dropout(F.leaky_relu(self.fc1(x),slope=0.1), train=self.train)
+        h = F.dropout(F.sigmoid(self.fc1(x)), train=self.train,ratio=.7)
         #h = F.dropout(F.relu(self.fc2(h)), train=self.train)
-        h = F.dropout(F.relu(self.fc3(h)), train=self.train,ratio=.7)
-        h = F.dropout(F.relu(self.fc4(h)), train=self.train,ratio=.7)
+
+        #h = F.dropout(F.relu(self.fc2(h)), train=self.train)
+        #h = F.dropout(F.sigmoid(self.fc2(h)), train=self.train)
+        #h = F.dropout(F.leaky_relu(self.fc3(h),0.3), train=self.train,ratio=.7)
+        h = F.dropout(F.sigmoid(self.fc3(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.relu(self.fc4(h)), train=self.train,ratio=.7)
+        h = F.dropout(F.leaky_relu(self.fc4(h)), train=self.train,ratio=.7)
         h = self.fc_last(h)
         self.pre = F.softmax(h)
         self.loss = F.softmax_cross_entropy(h, t)
@@ -69,9 +76,9 @@ class Mfcc(chainer.Chain):
             #conv3=F.Convolution2D(12,8,ksize=3),
             #conv4=F.Convolution2D(8,8,ksize=3),
             fc1=L.Linear(120, 512),            #fc2=L.Linear(512, 1024),
-            fc2=L.Linear(512, 1024),
-            fc3=L.Linear(1024, 1024),
-            fc4=L.Linear(1024, 512),
+            #fc2=L.Linear(512, 1024),
+            #fc3=L.Linear(1024, 1024),
+            #fc4=L.Linear(1024, 512),
             fc5=L.Linear(512, 512),
             fc_last=L.Linear(512, category_num)
         )
@@ -83,10 +90,16 @@ class Mfcc(chainer.Chain):
         #h = F.relu(self.conv3(h))
         #h = F.relu(self.conv4(h))
         h = F.dropout(F.leaky_relu(self.fc1(x),slope=0.05), train=self.train,ratio=.8)        
-        h = F.dropout(F.sigmoid(self.fc2(h)), train=self.train,ratio=.7)
-        h = F.dropout(F.relu(self.fc3(h)), train=self.train,ratio =.7)
-        h = F.dropout(F.leaky_relu(self.fc4(h),slope=0.3), train=self.train,ratio=.7)
-        h = F.dropout(F.leaky_relu(self.fc5(h),slope=0.03), train=self.train)
+        #h = F.dropout(F.relu(self.fc2(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.sigmoid(self.fc2(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.relu(self.fc3(h)), train=self.train,ratio =.7)
+        #h = F.dropout(F.sigmoid(self.fc3(h)), train=self.train,ratio =.7)
+        #h = F.dropout(F.relu(self.fc4(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.leaky_relu(self.fc4(h),slope=0.3), train=self.train,ratio=.7)
+        #h = F.dropout(F.sigmoid(self.fc4(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.leaky_relu(self.fc5(h),slope=0.03), train=self.train)
+        h = F.dropout(F.sigmoid(self.fc5(h)), train=self.train,ratio=.7)
+        #h = F.dropout(F.relu(self.fc5(h)), train=self.train)
         h = self.fc_last(h)
         self.pre = F.softmax(h)
         self.loss = F.softmax_cross_entropy(h, t)
