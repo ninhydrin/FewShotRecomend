@@ -26,7 +26,9 @@ positiveにお気に入りの音楽を、negativeに嫌い（というか趣向�
 ./weakRecommender.sh predict path/to/music_dir
 
 resultディレクトリに結果が保存される。
+
 あくまでも予測値です
 ## Other
 gpuの使用を推奨
-Mac OS X Yosemite 10.10.3にて動作確認
+
+(Mac OS X Yosemite 10.10.3にて動作確認)
