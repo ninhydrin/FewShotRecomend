@@ -88,12 +88,14 @@ def predict_spec(model,path):
     x_batch[0] = read_image(temp_spec)
     return get_result(x_batch,y_batch,model)[0]
 
-
 def dir_sort(path):
+    n_path=""
+    for i in path:
+        n_path +=i+" "
+    path = n_path[:-1]
     m_list = os.listdir(path)
-    m_list = [os.path.join(path,i) for i in m_list if ".wav" in i and i[0] != "."]    
+    m_list = [os.path.join(path,i) for i in m_list if ".wav" in i and i[0] != "."]
     return m_list
-    
 
 def main(m_list):
 
