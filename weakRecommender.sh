@@ -30,7 +30,7 @@ elif [ $1 = "predict" ] ; then
 	echo "usage : ./tools.sh predict path/to/music_directory (save_text 0 or 1)"
     else
 	if [ $# -eq 3 ] ; then
-	    gpu=$2
+	    gpu=$3
 	fi	
 	echo "start predict   target:"$2
 	python predictor.py $2 -g $gpu
