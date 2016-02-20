@@ -2,9 +2,12 @@ import os
 import sys
 import librosa
 import tools
+from tqdm import tqdm
 #from sklearn.cluster import KMeans
 import pickle
 import numpy as np
+import warnings
+import audioop
 #import multiprocessing
 
 posi_dir="positive"
@@ -37,52 +40,59 @@ def make_train():
     posi_mel=[]
     posi_chroma=[]
     posi_mfcc=[]
+    hi_res=0
     #posi_tempo=[]
     #nega_tempo=[]
-    for i in positive_sample:
-        #tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
-        print i
-        mel,mfcc,chroma = tools.get_feature(os.path.join(posi_dir,i))
-
-        mel=[(0,j) for j in mel]
-        mfcc=[(0,j) for j in mfcc]
-        chroma=[(0,j) for j in chroma]
-
-        posi_mel+=mel
-        posi_mfcc+=mfcc
-        posi_chroma+=chroma
-        tools.make_spec(os.path.join(posi_dir,i),os.path.join(data_dir,"posi_spectro",i[:-3]+"png"))
-
-    p_dump(posi_mel,"posi_mel")
-    p_dump(posi_mfcc,"posi_mfcc")
-    p_dump(posi_chroma,"posi_chroma")
-
-    del posi_mel
-    del posi_mfcc
-    del posi_chroma
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for i in tqdm(positive_sample):
+            #tools.make_vec(os.path.join(posi_dir,i),0,(posi_mel,posi_mfcc,posi_chroma))
+            try:
+                mel,mfcc,chroma = tools.get_feature(os.path.join(posi_dir,i))
+            
+                mel=[(0,j) for j in mel]
+                mfcc=[(0,j) for j in mfcc]
+                chroma=[(0,j) for j in chroma]
+            
+                posi_mel+=mel
+                posi_mfcc+=mfcc
+                posi_chroma+=chroma
+                tools.make_spec(os.path.join(posi_dir,i),os.path.join(data_dir,"posi_spectro",i[:-3]+"png"))
+            except audioop.error:
+                hi_res+=1
+        p_dump(posi_mel,"posi_mel")
+        p_dump(posi_mfcc,"posi_mfcc")
+        p_dump(posi_chroma,"posi_chroma")
+        
+        del posi_mel
+        del posi_mfcc
+        del posi_chroma
+        
+        print "start negative music feature extract"
+        nega_mel=[]
+        nega_chroma=[]
+        nega_mfcc=[]
     
-    print "start negative music feature extract"
-    nega_mel=[]
-    nega_chroma=[]
-    nega_mfcc=[]
-
-    for i in negative_sample:
+        for i in tqdm(negative_sample):
         #tools.make_vec(os.path.join(nega_dir,i),0,(nega_mel,nega_mfcc,nega_chroma))
-        print i
-        mel,mfcc,chroma=tools.get_feature(os.path.join(nega_dir,i))
+            try:
+                mel,mfcc,chroma=tools.get_feature(os.path.join(nega_dir,i))
+                mel=[(1,j) for j in mel]
+                mfcc=[(1,j) for j in mfcc]
+                chroma=[(1,j) for j in chroma]
+                
+                nega_mel+=mel
+                nega_mfcc+=mfcc
+                nega_chroma+=chroma
+                tools.make_spec(os.path.join(nega_dir,i),os.path.join(data_dir,"nega_spectro",i[:-3]+"png"))
+            except audioop.error:
+                hi_res+=1
 
-        mel=[(1,j) for j in mel]
-        mfcc=[(1,j) for j in mfcc]
-        chroma=[(1,j) for j in chroma]
-
-        nega_mel+=mel
-        nega_mfcc+=mfcc
-        nega_chroma+=chroma
-        tools.make_spec(os.path.join(nega_dir,i),os.path.join(data_dir,"nega_spectro",i[:-3]+"png"))
-    p_dump(nega_mel,"nega_mel")
-    p_dump(nega_mfcc,"nega_mfcc")
-    p_dump(nega_chroma,"nega_chroma")
-
+        p_dump(nega_mel,"nega_mel")
+        p_dump(nega_mfcc,"nega_mfcc")
+        p_dump(nega_chroma,"nega_chroma")
+    if hi_res:
+        print "{} files are not used.it may be 24bit.".format(hi_res)
 if __name__ == "__main__":    
     make_train()
     

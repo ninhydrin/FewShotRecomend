@@ -15,6 +15,8 @@ import scipy.io.wavfile as siw
 import os
 import argparse
 import librosa
+import audioop
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='pre train')
 parser.add_argument('--train_type', '-t',default="main",choices=('main','pre'),
@@ -63,17 +65,19 @@ if is_pre:
     data_dir = [i for i in os.listdir(pre_dir) if i[0] !="." and "wav" in i]
     assert len(data_dir)==1000
     for c,i in enumerate(data_dir):
-        if c % 100 == 1 or c%100 == 2:
-            y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
-            five_p = y.shape[1]/20
-            val_data.append((counter,y.mean(0)[five_p::10]))
-        else:
-            y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
-            five_p = y.shape[1]/20
-            train_data.append((counter,y.mean(0)[five_p::10]))
-        if c % 100 == 99:
-            counter+=1
-
+        try:
+            if c % 100 == 1 or c%100 == 2:
+                y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
+                five_p = y.shape[1]/20
+                val_data.append((counter,y.mean(0)[five_p::10]))
+            else:
+                y,sr = librosa.load(os.path.join(pre_dir,i),sr=22050,mono=False)
+                five_p = y.shape[1]/20
+                train_data.append((counter,y.mean(0)[five_p::10]))
+            if c % 100 == 99:
+                counter+=1
+        except audioop.error:
+            pass
     for cate,i in train_data:
         for j in range(i.size/window_num):
             train_list.append((cate,i[j*window_num:(j+1)*window_num]))
@@ -86,16 +90,22 @@ if is_pre:
 else:
     dataset=[]
     for i in os.listdir("positive"):
-        if ".wav" in i:            
-            y,sr = librosa.load(os.path.join("positive",i),sr=44100,mono=False)
-            five_p = y.shape[1]/20
-            dataset.append((0,y.mean(0)[five_p:-five_p:100]))
+        try:
+            if ".wav" in i:            
+                y,sr = librosa.load(os.path.join("positive",i),sr=44100,mono=False)
+                five_p = y.shape[1]/20
+                dataset.append((0,y.mean(0)[five_p:-five_p:100]))
+        except audioop.error:
+            pass
     p_num=len(dataset)
     for i in os.listdir("negative"):
-        if ".wav" in i:            
-            y,sr = librosa.load(os.path.join("negative",i),sr=44100,mono=False)
-            five_p = y.shape[1]/20
-            dataset.append((1,y.mean(0)[five_p:-five_p:100]))
+        try:
+            if ".wav" in i:            
+                y,sr = librosa.load(os.path.join("negative",i),sr=44100,mono=False)
+                five_p = y.shape[1]/20
+                dataset.append((1,y.mean(0)[five_p:-five_p:100]))
+        except audioop.error:
+            pass
     n_num=len(dataset)-p_num
     for cate,i in dataset:
         for j in range(i.size/window_num):
@@ -119,10 +129,10 @@ xp = np if args.gpu < 0 else cuda.cupy
 optimizer = optimizers.Adam() if args.learning == "adam" else optimizers.MomentumSGD(lr=0.0001, momentum=0.9)
 optimizer.setup(model)
 
-for epoch in six.moves.range(1, args.epoch + 1):
-    print 'epoch ', epoch,"/",args.epoch #,":learning rate ",optimizer.lr
-    if args.learning == "sgd":
-        print "learning rate : ",optimizer.lr
+for epoch in tqdm(xrange(1, args.epoch + 1)):
+    #print 'epoch ', epoch,"/",args.epoch #,":learning rate ",optimizer.lr
+    #if args.learning == "sgd":
+    #    print "learning rate : ",optimizer.lr
 
     x_batch = np.ndarray((batchsize,1,1,model.insize), dtype=np.float32)
     y_batch = np.ndarray((batchsize,), dtype=np.int32)
@@ -149,8 +159,7 @@ for epoch in six.moves.range(1, args.epoch + 1):
         sum_loss += float(model.loss.data) * len(t.data)
         sum_accuracy += float(model.accuracy.data) * len(t.data)
 
-    print 'train mean loss={}, accuracy={}'.format(
-        sum_loss / N, sum_accuracy / N)
+    #print 'train mean loss={}, accuracy={}'.format(sum_loss / N, sum_accuracy / N)
 
     if epoch == args.epoch and not is_pre:
         for_dic = True
@@ -191,12 +200,11 @@ for epoch in six.moves.range(1, args.epoch + 1):
             sum_loss += float(loss.data) * len(t.data)
             sum_accuracy += float(model.accuracy.data) * len(t.data)
             
-        print 'test  mean loss={}, accuracy={}'.format(
-            sum_loss / N_test, sum_accuracy / N_test)
+        #print 'test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test)
     # Save the model and the optimizer
     #if epoch % 10 == 0:
     if epoch % 10 == 0:
-        print 'save the model'
+        #print 'save the model'
         serializers.save_hdf5(save_name, model)
         #print('save the optimizer')
         #serializers.save_hdf5(save_name, optimizer)

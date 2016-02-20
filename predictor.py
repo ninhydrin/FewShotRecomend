@@ -16,28 +16,29 @@ import numpy as np
 import chainer
 import six.moves.cPickle as pickle
 #from six.moves import queue
-
+from tqdm import tqdm
 from skimage import io
 from chainer import cuda
 from chainer import optimizers
 #from chainer.functions import caffe
 from chainer import serializers
 #from scipy import ndimage
+import audioop
 import argparse
 import models
 import tools
+import warnings
 
 result_dir = "result"
-
 parser = argparse.ArgumentParser(description='this is predictor. if you input music directory,this extract your favorite likely music.')
-parser.add_argument('target',help='path to directory that contains musics you want to predict')
-parser.add_argument('--gpu', '-g',default=-1,type=int,help="gpu ID")
+parser.add_argument('target',nargs ="*",help='path to directory that contains musics you want to predict')
+#parser.add_argument('--gpu', '-g',default=-1,type=int,help="gpu ID")
 args = parser.parse_args()
 
-if args.gpu >= 0:
-    cuda.get_device(args.gpu).use()
-    model.to_gpu()
-xp = cuda.cupy if args.gpu >= 0 else np
+#if args.gpu >= 0:
+#    cuda.get_device(args.gpu).use()
+#    model.to_gpu()
+xp = np#cuda.cupy if args.gpu >= 0 else np
 
 mean_image = pickle.load(open("train_data/mean.npy", 'rb'))
 mean_image =mean_image[:3,:,:]
@@ -59,7 +60,6 @@ def read_image(path,insize=256):
     image = image/255.0
     return image
 
-
 def predict_mmc(model,in_list,b_size=5):
     x_batch = np.ndarray((b_size, model.insize), dtype=np.float32)
     y_batch = np.zeros((b_size,), dtype=np.int32)
@@ -79,7 +79,6 @@ def predict_law(model,path): #1曲あたり20個取り出す（重複あり）�
     y_batch = np.zeros((len(law_list),), dtype=np.int32)
     return get_result(x_batch,y_batch,model)
 
-
 def predict_spec(model,path):
     temp_spec = os.path.join(result_dir,"temp.png")
     tools.make_spec(path,temp_spec)
@@ -89,10 +88,10 @@ def predict_spec(model,path):
     return get_result(x_batch,y_batch,model)[0]
 
 def dir_sort(path):
-    n_path=""
-    for i in path:
-        n_path +=i+" "
-    path = n_path[:-1]
+    #n_path=""
+    #for i in path:
+    #    n_path +=i+" "
+    #path = n_path[:-1]
     m_list = os.listdir(path)
     m_list = [os.path.join(path,i) for i in m_list if ".wav" in i and i[0] != "."]
     return m_list
@@ -111,27 +110,34 @@ def main(m_list):
     serializers.load_hdf5(os.path.join(model_dir,"my_law.model"), law_model)
     serializers.load_hdf5(os.path.join(model_dir,"my_spec.model"), spec_model)
 
-    candidate = []    
-    for num,i in enumerate(m_list):
-        p_n=[]
-        print  "begin",i,"({0}/{1})".format(num+1,len(m_list))
-        mel,mfcc,chroma = tools.get_feature(i)
-        p_n.append(predict_mmc(mel_model,mel).mean(0))
-        tools.fprint("mel done   ")
-        p_n.append(predict_mmc(mfcc_model,mfcc).mean(0))
-        tools.fprint("mfcc done  ")
-        p_n.append(predict_mmc(chroma_model,chroma).mean(0))
-        tools.fprint("chroma done")
-        p_n.append(predict_law(law_model,i).mean(0))
-        tools.fprint("law done   ")        
-        p_n.append(predict_spec(spec_model,i))
-        tools.fprint("spec done  ")
-        candidate.append((i,p_n))
-        tools.fprint("end        \n")
-    return candidate
+    candidate = []
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for i in tqdm(m_list):
+            try:
+                p_n=[]
+                #print  "begin",i,"({0}/{1})".format(num+1,len(m_list))
+                mel,mfcc,chroma = tools.get_feature(i)
+                p_n.append(predict_mmc(mel_model,mel).mean(0))
+                #tools.fprint("mel done   ")
+                p_n.append(predict_mmc(mfcc_model,mfcc).mean(0))
+                #tools.fprint("mfcc done  ")
+                p_n.append(predict_mmc(chroma_model,chroma).mean(0))
+                #tools.fprint("chroma done")
+                p_n.append(predict_law(law_model,i).mean(0))
+                #tools.fprint("law done   ")        
+                p_n.append(predict_spec(spec_model,i))
+                #tools.fprint("spec done  ")
+                candidate.append((i,p_n))
+                #tools.fprint("end        \n")
+            except audioop.error:
+                pass
+        return candidate
 
 if __name__ == "__main__":
-    m_list = dir_sort(args.target)
+    dir_path = " ".join(args.target)
+    m_list = dir_sort(dir_path)
+    #m_list = args.target
     candidate=main(m_list)
     os.remove(os.path.join(result_dir,"temp.png"))
     threshold=pickle.load(open("train_data/threshold.dic"))

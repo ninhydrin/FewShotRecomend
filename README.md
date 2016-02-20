@@ -4,7 +4,8 @@
 - Python 2.7+
 - NumPy
 - Pickle
-- Argparse
+- Urllib
+- Tqdm
 - OpenCV
 - Librosa
 - Skimage
@@ -32,3 +33,7 @@ resultディレクトリに結果が保存される。
 gpuの使用を推奨
 
 (Mac OS X Yosemite 10.10.3にて動作確認)
+
+./weakRecommender.sh itunes
+
+でiTunesのデータを学習用サンプルとして取得する。再生回数が中央値以上ならpositive、中央値未満ならnegativeに分類される。環境によってはうまくいかないので、引数にiTunesディレクトリを指定する

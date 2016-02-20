@@ -11,6 +11,7 @@ from chainer import cuda
 import chainer.links as L
 from chainer import optimizers
 from chainer import serializers
+from tqdm import tqdm
 import argparse
 import os
 
@@ -96,10 +97,10 @@ optimizer = optimizers.Adam() if args.learning == "adam" else optimizers.Momentu
 
 optimizer.setup(model)
 
-for epoch in six.moves.range(1, args.epoch + 1):
-    print "epoch ", epoch,"/",args.epoch
-    if args.learning == "sgd":
-        print "learning rate : ", optimizer.lr
+for epoch in tqdm(xrange(1, args.epoch + 1)):
+    #print "epoch ", epoch,"/",args.epoch
+    #if args.learning == "sgd":
+    #    print "learning rate : ", optimizer.lr
     x_batch = np.ndarray((batchsize,3,model.insize,model.insize), dtype=np.float32)
     y_batch = np.ndarray((batchsize,), dtype=np.int32)
     sum_accuracy = 0
@@ -124,8 +125,7 @@ for epoch in six.moves.range(1, args.epoch + 1):
         sum_loss += float(model.loss.data) * len(t.data)
         sum_accuracy += float(model.accuracy.data) * len(t.data)
 
-    print 'train mean loss={}, accuracy={}'.format(
-        sum_loss / N, sum_accuracy / N)
+    #print 'train mean loss={}, accuracy={}'.format(sum_loss / N, sum_accuracy / N)
     if epoch == args.epoch and not is_pre:
         for_dic = True
         N_test = N
@@ -165,10 +165,9 @@ for epoch in six.moves.range(1, args.epoch + 1):
             sum_loss += float(loss.data) * len(t.data)
             sum_accuracy += float(model.accuracy.data) * len(t.data)
 
-        print 'test  mean loss={}, accuracy={}'.format(
-            sum_loss / N_test, sum_accuracy / N_test)
+        #print 'test  mean loss={}, accuracy={}'.format(sum_loss / N_test, sum_accuracy / N_test)
     if epoch % 10 == 0:
-        print 'save the model'
+        #print 'save the model'
         serializers.save_hdf5(save_name, model)
     if args.learning == "sgd":
         optimizer.lr *= 0.97
